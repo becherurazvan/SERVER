@@ -1,6 +1,7 @@
 package Entities;
 
 import Database.DB;
+import com.google.api.services.drive.Drive;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -22,6 +23,9 @@ public class Project {
         this.leaderEmail = leaderEmail;
         this.title = title;
         id =  Math.abs(new Random().nextInt());
+        invitationCode = "INVITATION_"+id;
+
+
 
 
 
