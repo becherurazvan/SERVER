@@ -1,52 +1,44 @@
 package Entities;
 
 
+import Google.TokenUtil;
+import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
+
 public class User {
     private String email;
-    private String authCode;
-    private String idToken;
     private String name;
-    private String teamName;
+    private String id;
 
-    public User(String email, String latestAuthenticationCode, String idToken) {
+    private int currentProject;
+    private boolean partOfProject;
+
+    private String accessToken;
+    private String refreshToken;
+
+    public User(String email) {
         this.email = email;
-        this.authCode = latestAuthenticationCode;
-        this.idToken = idToken;
+        partOfProject=false;
     }
 
-    public void setAuthCode(String authCode) {
-        this.authCode = authCode;
+    public void setTokens(String authCode) {
+        GoogleTokenResponse response = TokenUtil.getTokenResponse(authCode);
+        accessToken = response.getAccessToken();
+        refreshToken = response.getRefreshToken();
     }
 
-    public void setIdToken(String idToken) {
-        this.idToken = idToken;
+    public String getAccessToken() {
+        return accessToken;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public String getRefreshToken() {
+        return refreshToken;
     }
 
-    public void setTeamName(String teamName) {
-        this.teamName = teamName;
+    public boolean isPartOfProject(){
+        return partOfProject;
     }
 
     public String getEmail() {
         return email;
-    }
-
-    public String getAuthCode() {
-        return authCode;
-    }
-
-    public String getIdToken() {
-        return idToken;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public String getTeamName() {
-        return teamName;
     }
 }
