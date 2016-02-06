@@ -1,13 +1,14 @@
 
 import Database.DB;
 import Entities.User;
-import Google.IdTokenVerifier;
-import Requests.LoginRequest;
 import Requests.LoginResponse;
+import Requests.Request;
+import Requests.Response;
+import Requests.SetTokenRequest;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
-import java.io.IOException;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.json.jackson2.JacksonFactory;
 
 import static spark.Spark.*;
 
@@ -16,52 +17,80 @@ public class UserManager {
     DB db = DB.getInstance();
 
     public UserManager() {
-        post("/login", (request, response) -> {
 
+        DB db = DB.getInstance();
+        ObjectMapper mapper = new ObjectMapper();
+
+        /*
+            When a user logs in, if it is the first time, we register him with all the data that we get from his tokenId
+            If he is a returning user, we tell him wether he is part of a project or not
+            At the point when the user joins a project, we will have his authentication and refresh token
+            so we dont need them right now
+         */
+        post("/user/login", (request, response) -> {
             try{
                 System.out.println("Received : " + request.body());
-                ObjectMapper mapper = new ObjectMapper();
-                LoginRequest loginRequest = mapper.readValue(request.body(),LoginRequest.class);
-                System.out.println("Received : " + loginRequest.authCode);
 
+                Request loginRequest = mapper.readValue(request.body(),Request.class);
 
+                GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(),loginRequest.getTokenId());
+                GoogleIdToken.Payload payload = idToken.getPayload();
 
-                // YOU ARE NO LONGER CHECKING IF THE USER IS WHO HE SAYS HE IS...
-               // User u = IdTokenVerifier.verify(loginRequest.idToken,true);
+                String userId = payload.getSubject();
+                System.out.println("User ID: " + userId);
+                String email = payload.getEmail();
+                String name = (String) payload.get("name");
+                String pictureUrl = (String) payload.get("picture");
+                System.out.println("Email: " + email + " name :  + " + name  +  " is trying to join");
 
-
-
-                if(db.containsUser(loginRequest.getEmail())){
-                    User u = db.getUser(loginRequest.getEmail());
-                    return mapper.writeValueAsString(login(u,loginRequest.authCode));
+                //returning user
+                if(db.userExists(email)){
+                    User u = db.getUser(email);
+                    boolean partOfProject = u.isPartOfProject();
+                    String projectId = u.getProjectId();
+                    return  mapper.writeValueAsString(new LoginResponse("Welcome back! currently part of project? :" + partOfProject,true,partOfProject,projectId));
                 }else{
-                  //  return mapper.writeValueAsString(new LoginResponse("Invalid ID token",false,false,false));
-                    User u = new User(loginRequest.getEmail());
-                    db.addUser(u.getEmail(),u);
-                    return mapper.writeValueAsString(login(u,loginRequest.authCode));
+                    User u = new User(email,name,pictureUrl,userId);
+                    db.registerUser(u);
+                    return mapper.writeValueAsString(new LoginResponse("Welcome new user!",true,false,null));
+                }
+
+            }catch (JsonParseException jpe){
+                response.status(400);
+                return mapper.writeValueAsString(new LoginResponse("Invalid json formating of request",false,false,null));
+            }
+        });
+
+        post("/user/set_token", (request, response) -> {
+            try{
+                System.out.println("Received : " + request.body());
+                SetTokenRequest setTokenRequest = mapper.readValue(request.body(),SetTokenRequest.class);
+
+                GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(),setTokenRequest.getTokenId());
+                GoogleIdToken.Payload payload = idToken.getPayload();
+                String authCode = setTokenRequest.getAuthCode();
+
+                User u = db.getUser(payload.getEmail());
+
+                if(u.setTokens(authCode)==true){
+                    return mapper.writeValueAsString(new Response(true,"Succesfully set the tokens"));
+                }else{
+                    return mapper.writeValueAsString(new Response(false,"AuthCode invalid, please restart the application and try again"));
                 }
 
 
             }catch (JsonParseException jpe){
                 response.status(400);
-                ObjectMapper mapper = new ObjectMapper();
-                return mapper.writeValueAsString(new LoginResponse("Invalid json formating of request",false,false,false));
+                return mapper.writeValueAsString(new Response(false,"Invalid json formating of request"));
             }
         });
+
+
+
     }
 
-    public LoginResponse login(User u, String authCode){ // return something relevant
-        u.setTokens(authCode); // everytime a user logs in, he will get a new refresh token and access token
-        boolean partOfProject = u.isPartOfProject();
-        boolean gotInvites = db.getUserInvites(u.getEmail())!=null;
 
 
-        try {
-            main.retrieveAllFiles( main.getDriveService(u.getAccessToken(),u.getRefreshToken()));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
 
-        return new LoginResponse("Succesfully logged in ",true,partOfProject,gotInvites);
-    }
+
 }

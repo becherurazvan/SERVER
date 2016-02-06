@@ -8,69 +8,32 @@ import java.util.Random;
 
 
 public class Project {
-    ArrayList<User> members;
-    ArrayList<String> invitedUsers;
-    int id;
+    ArrayList<String> members;
+    String id;
     String title;
     String leaderEmail;
     String invitationCode;
+
 
     String projectFolderId;
 
     public Project(String leaderEmail, String title) {
         members = new ArrayList<>();
-        invitedUsers = new ArrayList<>();
         this.leaderEmail = leaderEmail;
         this.title = title;
-        id =  Math.abs(new Random().nextInt());
-        invitationCode = "INVITATION_"+id;
-
-
-
+        id =  String.valueOf(Math.abs(new Random().nextInt(9000)+1000));
+        invitationCode = "INV_"+id;
 
 
     }
 
-    public void inviteMember(String email){
-        invitedUsers.add(email);
-    }
 
-    public String join(String email){
-        if(invitedUsers.contains(email)){
-            if(members.contains(email))
-                return "Already a member";
-            members.add(DB.getInstance().getUser(email));
-            invitedUsers.remove(email);
-            return "Succesfully joined project " + title;
-        }else{
-            return "You have not been invited to this project";
-        }
-    }
-
-    public String joinWithInvidationCode(String email,String code){
-        if(code.equals(invitationCode))
-        {
-            if(members.contains(email))
-                return "Already a member";
-            members.add(DB.getInstance().getUser(email));
-            if(invitedUsers.contains(email))
-                invitedUsers.remove(email);
-            return "Succesfully joined project " + title;
-        }else{
-            return "Invitation code invalid";
-        }
-    }
-
-    public ArrayList<User> getMembers() {
+    public ArrayList<String> getMembers() {
         return members;
     }
 
-    public ArrayList<String> getInvitedUsers() {
-        return invitedUsers;
-    }
-
     public String getId() {
-        return String.valueOf(id);
+        return id;
     }
 
     public String getTitle() {
@@ -83,5 +46,15 @@ public class Project {
 
     public String getInvitationCode() {
         return invitationCode;
+    }
+
+    public void addMember(String email){
+        members.add(email);
+        System.out.println("added member to project "+ id);
+    }
+
+
+    public void setProjectFolderId(String projectFolderId) {
+        this.projectFolderId = projectFolderId;
     }
 }

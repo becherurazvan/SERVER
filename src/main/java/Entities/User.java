@@ -1,29 +1,70 @@
 package Entities;
 
 
+import Database.DB;
 import Google.TokenUtil;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 
 public class User {
     private String email;
     private String name;
-    private String id;
-
-    private int currentProject;
-    private boolean partOfProject;
-
+    private String pictureUrl;
+    private String userId;
+    private String currentProject;
     private String accessToken;
     private String refreshToken;
 
-    public User(String email) {
+    public User(String email, String name, String pictureUrl, String userId) {
         this.email = email;
-        partOfProject=false;
+        this.name = name;
+        this.pictureUrl = pictureUrl;
+        this.userId = userId;
     }
 
-    public void setTokens(String authCode) {
-        GoogleTokenResponse response = TokenUtil.getTokenResponse(authCode);
+    public boolean setTokens(String authToken){
+        GoogleTokenResponse response = TokenUtil.getTokenResponse(authToken);
+        if(response==null){
+            return false;
+        }
         accessToken = response.getAccessToken();
         refreshToken = response.getRefreshToken();
+        System.out.println("Succesfully set the tokens for user : " + name + " \n" + accessToken + " : " + refreshToken);
+        return true;
+    }
+
+
+    public boolean isPartOfProject(){
+        return currentProject!=null;
+    }
+
+    public void joinProject(String projectId){
+        this.currentProject= projectId;
+
+    }
+
+    public String getProjectId(){
+        return currentProject;
+    }
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPictureUrl() {
+        return pictureUrl;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public String getCurrentProject() {
+        return currentProject;
     }
 
     public String getAccessToken() {
@@ -32,13 +73,5 @@ public class User {
 
     public String getRefreshToken() {
         return refreshToken;
-    }
-
-    public boolean isPartOfProject(){
-        return partOfProject;
-    }
-
-    public String getEmail() {
-        return email;
     }
 }

@@ -5,55 +5,103 @@
 import Database.DB;
 import Entities.Project;
 import Entities.User;
-import Requests.CreateProjectRequest;
-import Requests.LoginRequest;
+import Entities.UserInfo;
+import Google.DriveService;
+import Requests.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.ParentReference;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 import static spark.Spark.*;
 
 public class ProjectManager {
+
+
     public ProjectManager() {
 
+        DB db = DB.getInstance();
 
-        post("/create_project", (request, response) -> {
+        post("/project/create", (request, response) -> {
             ObjectMapper mapper = new ObjectMapper();
             CreateProjectRequest createProjectRequest = mapper.readValue(request.body(), CreateProjectRequest.class);
             System.out.println("Received : " + request.body());
 
-            String projectOwner = createProjectRequest.getEmail();
             String projectName = createProjectRequest.getProjectName();
+            GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(),createProjectRequest.getTokenId());
+            String projectOwner = idToken.getPayload().getEmail();
+            User u = db.getUser(projectOwner);
+            Project p = db.createProject(projectOwner,projectName);
 
-            Project p = new Project(projectOwner,projectName);
-            DB.getInstance().addProject(p);
-            User owner = DB.getInstance().getUser(p.getLeaderEmail());
-            Thread t = new Thread(new ProjectInitializer(p,main.getDriveService(owner.getAccessToken(), owner.getRefreshToken())));
-            t.start();
+            Thread t = new Thread(new ProjectInitializer(p,u));
+            t.start(); // initialising the project might fail, since there is no way for us to know how long it will take
+            // we will have to notify the user at some point that the project is ready for him, will take advantage of GCM
+            // to do this
 
-            return mapper.writeValueAsString(p);
+            return mapper.writeValueAsString(new CreateProjectResponse(p));
         });
+
+        post("/project/join", (request, response) -> { // returns plain response
+            ObjectMapper mapper = new ObjectMapper();
+            JoinProjectRequest joinRequest = mapper.readValue(request.body(),JoinProjectRequest.class);
+
+            GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(),joinRequest.getTokenId());
+            String email = idToken.getPayload().getEmail();
+            System.out.println("User : " + email +  " with invitation code : " + joinRequest.getInvitationCode());
+
+            return mapper.writeValueAsString(db.joinProject(email,joinRequest.getInvitationCode()));
+        });
+
+        get("/project/list_members", (request, response) -> {
+            ObjectMapper mapper = new ObjectMapper();
+            String projectId = request.queryMap("project_id").value();
+
+            Project p = db.getProject(projectId);
+
+
+            if(p==null){
+                return "There is no project with id : " + projectId;
+            }else{
+                ArrayList<UserInfo> members = new ArrayList<UserInfo>();
+                for(String s:p.getMembers()){
+                    String name = DB.getInstance().getUser(s).getName();
+                    String email = DB.getInstance().getUser(s).getEmail();
+                    members.add(new UserInfo(name,email));
+                }
+                System.out.println(mapper.writeValueAsString(members));
+                return mapper.writeValueAsString(members);
+            }
+
+
+
+        });
+
+
     }
+
+
+
+
 
     public class ProjectInitializer implements Runnable{
         Project p;
         Drive d;
-        public ProjectInitializer(Project p, Drive d){
+        public ProjectInitializer(Project p, User u){
             this.p = p;
-            this.d  =d;
+            d = DriveService.getDriveService(u);
+
         }
 
         @Override
         public void run() {
-
             try {
                 System.out.println("Initializing project >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
-
 
                 File body = new File();
                 body.setTitle(p.getTitle());
@@ -64,6 +112,9 @@ public class ProjectManager {
                 File f = d.files().insert(body).execute();
 
                 String folderId = f.getId();
+
+                DB.getInstance().setFolderId(p.getId(),folderId);
+
 
                 File copiedFile = new File();
                 copiedFile.setTitle("Product Backlog From Server");

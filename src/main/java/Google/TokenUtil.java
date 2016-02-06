@@ -27,7 +27,8 @@ public class TokenUtil {
                             "")
                             .execute();
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("TokenUtil:: invalid grant, bad request");
+           return null;
         }
         return tokenResponse;
     }

@@ -3,24 +3,20 @@ package Requests;
 /**
  * Created by rbech on 1/26/2016.
  */
-public class CreateProjectRequest {
-    public String projectName;
-    public String email;
+public class CreateProjectRequest extends Request {
+    String projectName;
 
 
-    public CreateProjectRequest(String projectName, String email) {
+    public CreateProjectRequest(String tokenId, String projectName) {
+        super(tokenId);
         this.projectName = projectName;
-        this.email = email;
     }
 
-    public CreateProjectRequest() {
-    }
+    public CreateProjectRequest(){}
 
     public String getProjectName() {
         return projectName;
     }
 
-    public String getEmail() {
-        return email;
-    }
+
 }

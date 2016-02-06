@@ -1,24 +1,14 @@
 import Google.GoogleSecret;
-import Google.IdTokenVerifier;
 import Google.TokenUtil;
-import Requests.LoginResponse;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.*;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.model.File;
 import com.google.api.services.drive.model.FileList;
-import com.google.api.services.drive.model.ParentList;
-import com.google.api.services.drive.model.ParentReference;
-import javafx.scene.Parent;
 
 
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,10 +17,11 @@ public class main {
     public static void main(String[] args) throws IOException {
 
 
-       new GoogleSecret();
-        new IdTokenVerifier();
+        new GoogleSecret();
         new UserManager();
         new ProjectManager();
+
+
 
 
 
