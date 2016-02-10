@@ -21,7 +21,6 @@ public class DB {
 
     private HashMap<String, User> registeredUsers = new HashMap<>();
     private HashMap<String, Project> projects = new HashMap<>();
-    private HashMap<String, String> invitations = new HashMap<>();
 
     private static DB instance = null;
     protected DB() {}
@@ -58,8 +57,7 @@ public class DB {
         Project p = new Project(ownerEmail,projectName);
         projects.put(p.getId(),p);
         registeredUsers.get(ownerEmail).joinProject(p.getId());
-        p.addMember(ownerEmail);
-        invitations.put(p.getInvitationCode(),p.getId());
+        p.addMember(getUser(ownerEmail));
         System.out.println("Succefully created project : " + projectName);
         return p;
     }
@@ -75,20 +73,15 @@ public class DB {
     public Response joinProject(String email, String invitationCode){
         User u = registeredUsers.get(email);
 
-        if(!invitations.containsKey(invitationCode)){
+        if(!projects.containsKey(invitationCode)){
             return new Response(false,"Invitation code invalid");
         }else{
-            String projectId = invitations.get(invitationCode);
-            u.joinProject(projectId);
-            Project project = projects.get(projectId);
-            project.addMember(email);
-            return new Response(true,"Succesfully joined project with id : " +projectId);
+            Project project = projects.get(invitationCode);
+            project.addMember(getUser(email));
+            u.joinProject(project.getId());
+
+            return new Response(true,"Succesfully joined project with id : " +project.getId());
         }
-
-
-
-
-
     }
 
 

@@ -1,10 +1,8 @@
 
 import Database.DB;
 import Entities.User;
-import Requests.LoginResponse;
-import Requests.Request;
-import Requests.Response;
-import Requests.SetTokenRequest;
+import GCM.GCMmessenger;
+import Requests.*;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
@@ -69,8 +67,12 @@ public class UserManager {
                 GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(),setTokenRequest.getTokenId());
                 GoogleIdToken.Payload payload = idToken.getPayload();
                 String authCode = setTokenRequest.getAuthCode();
+                String gcmToken = setTokenRequest.getGcmToken();
 
                 User u = db.getUser(payload.getEmail());
+                u.setGcmToken(gcmToken);
+
+                GCMmessenger.sendSimpleNotification("Hello "+u.getName(),"Welcome!",u.getGcmToken(),true);
 
                 if(u.setTokens(authCode)==true){
                     return mapper.writeValueAsString(new Response(true,"Succesfully set the tokens"));

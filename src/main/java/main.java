@@ -1,3 +1,5 @@
+import GCM.GCMmessenger;
+import GCM.Message;
 import Google.GoogleSecret;
 import Google.TokenUtil;
 import com.google.api.client.googleapis.auth.oauth2.*;
@@ -18,8 +20,11 @@ public class main {
 
 
         new GoogleSecret();
-        new UserManager();
-        new ProjectManager();
+         new UserManager();
+         new ProjectManager();
+        new GCMmessenger();
+
+
 
 
 

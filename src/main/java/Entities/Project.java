@@ -1,14 +1,16 @@
 package Entities;
 
 import Database.DB;
+import GCM.GCMmessenger;
 import com.google.api.services.drive.Drive;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
 
 
 public class Project {
-    ArrayList<String> members;
+    HashMap<String,String> members;  // email and GCMtoken
     String id;
     String title;
     String leaderEmail;
@@ -18,7 +20,7 @@ public class Project {
     String projectFolderId;
 
     public Project(String leaderEmail, String title) {
-        members = new ArrayList<>();
+        members = new HashMap<>();
         this.leaderEmail = leaderEmail;
         this.title = title;
         id =  String.valueOf(Math.abs(new Random().nextInt(9000)+1000));
@@ -29,7 +31,7 @@ public class Project {
 
 
     public ArrayList<String> getMembers() {
-        return members;
+        return new ArrayList<String>(members.keySet());
     }
 
     public String getId() {
@@ -48,11 +50,18 @@ public class Project {
         return invitationCode;
     }
 
-    public void addMember(String email){
-        members.add(email);
+    public void addMember(User u){
+        members.put(u.getEmail(),u.getGcmToken());
         System.out.println("added member to project "+ id);
+
+        sendTeamNotification(u.getName() + " has joined your project!");
     }
 
+    public void sendTeamNotification(String msg){
+        for(String s:members.keySet()){
+            GCMmessenger.sendSimpleNotification(msg,"New User joined!",members.get(s),true);
+        }
+    }
 
     public void setProjectFolderId(String projectFolderId) {
         this.projectFolderId = projectFolderId;

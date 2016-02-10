@@ -13,6 +13,7 @@ public class User {
     private String currentProject;
     private String accessToken;
     private String refreshToken;
+    private String gcmToken;
 
     public User(String email, String name, String pictureUrl, String userId) {
         this.email = email;
@@ -73,5 +74,13 @@ public class User {
 
     public String getRefreshToken() {
         return refreshToken;
+    }
+
+    public String getGcmToken() {
+        return gcmToken;
+    }
+
+    public void setGcmToken(String gcmToken) {
+        this.gcmToken = gcmToken;
     }
 }
