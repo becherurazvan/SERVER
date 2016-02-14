@@ -1,11 +1,13 @@
 package Google;
 
 import com.google.api.client.googleapis.auth.oauth2.GoogleAuthorizationCodeTokenRequest;
+import com.google.api.client.googleapis.auth.oauth2.GoogleClientSecrets;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 
+import java.io.FileReader;
 import java.io.IOException;
 
 /**
@@ -43,8 +45,11 @@ public class TokenUtil {
                 .build();
         credential.setAccessToken(accessToken);
         credential.setRefreshToken(refreshToken);
-        System.out.println("Access token: " + accessToken + "\nRefresh token: " + refreshToken + " \nexpiration : " + credential.getExpiresInSeconds());
+        System.out.println("Access token: " + accessToken + "\nRefresh token: " + refreshToken + " \nexpiration : " + credential.getExpiresInSeconds() +  "    " + credential.getServiceAccountUser());
         return credential;
     }
+
+
+
 
 }

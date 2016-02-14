@@ -14,7 +14,7 @@ public class GoogleSecret {
     static GoogleClientSecrets clientSecrets;
 
     public GoogleSecret(){
-        String secretFilePath = new java.io.File("").getAbsolutePath()+"/src/main/java/client_secret.json";
+        String secretFilePath = new java.io.File("").getAbsolutePath()+"/src/main/java/client_secret_script.json"; // remember to change back to without "script";
 
         try {
             clientSecrets = GoogleClientSecrets.load(JacksonFactory.getDefaultInstance(),new FileReader(secretFilePath));
