@@ -7,38 +7,41 @@ user story. The amount of points a user story is worth is the sum of points it's
 A user story is part of a sprint or unassigned, it has a order in the sprint backlog and a status.
  */
 
+import Entities.User;
+
 import java.util.ArrayList;
 
 public class UserStory { // all or some, must at some point have some kind of acceptance tests attatched
 
     String id;
-    String title;
-    String asA;
-    String iWantTo;
-    String soThat;
     String description;
     ArrayList<Note> notes;
     ArrayList<Task> tasks;
     ArrayList<String> assignedTo;
-    int storyPoints;
+    int storyPoints=0;
     String status;
     String sprintId;
     int achievedStoryPoints;
     int boardOrder;
 
+    String fileId;
+    String bookmarkId;
 
-    public UserStory(String id, String title, String asA, String iWantTo, String soThat) {
+
+    public UserStory(String id,String description) {
         notes=new ArrayList<>();
         tasks = new ArrayList<>();
         assignedTo = new ArrayList<>();
         this.id = id;
-        this.title = title;
-        this.asA = asA;
-        this.iWantTo = iWantTo;
-        this.soThat = soThat;
         status = Constants.STATUS_NEW;
         refreshStoryPoints();
         refreshAssignedTo();
+        this.description = description;
+
+        System.out.println("\n      New user story created id:" + id + "\n" +description);
+    }
+    public UserStory(){
+
     }
 
 
@@ -76,6 +79,19 @@ public class UserStory { // all or some, must at some point have some kind of ac
         }
     }
 
+    public void addTasks(ArrayList<Task> tasks){
+        for(Task t:tasks)
+            this.tasks.add(t);
+
+        refreshStoryPoints();
+    }
+
+    public void printTasks(){
+        for(Task t:tasks){
+            t.print();
+        }
+    }
+
     public void setDescription(String description) {
         this.description = description;
     }
@@ -94,22 +110,6 @@ public class UserStory { // all or some, must at some point have some kind of ac
 
     public String getId() {
         return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getAsA() {
-        return asA;
-    }
-
-    public String getiWantTo() {
-        return iWantTo;
-    }
-
-    public String getSoThat() {
-        return soThat;
     }
 
     public String getDescription() {

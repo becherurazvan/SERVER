@@ -66,6 +66,16 @@ public class DB {
         projects.get(projectId).setProjectFolderId(id);
     }
 
+    public void setUserStoriesFileId(String projectId,String id){
+        projects.get(projectId).setUserStoriesFileId(id);
+    }
+
+
+    public void setNotesFileId(String projectId,String id){
+        projects.get(projectId).setNotesFileId(id);
+    }
+
+
     public Project getProject(String id){
         return projects.get(id);
     }
@@ -79,7 +89,6 @@ public class DB {
             Project project = projects.get(invitationCode);
             project.addMember(getUser(email));
             u.joinProject(project.getId());
-
             return new Response(true,"Succesfully joined project with id : " +project.getId());
         }
     }

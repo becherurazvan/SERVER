@@ -2,6 +2,8 @@ package Entities;
 
 import Database.DB;
 import GCM.GCMmessenger;
+import Google.DriveService;
+import Scrum.ProductBacklog;
 import com.google.api.services.drive.Drive;
 
 import java.util.ArrayList;
@@ -10,7 +12,7 @@ import java.util.Random;
 
 
 public class Project {
-    HashMap<String,String> members;  // email and GCMtoken
+    ArrayList<String> members;  // email and GCMtoken
     String id;
     String title;
     String leaderEmail;
@@ -18,20 +20,34 @@ public class Project {
 
 
     String projectFolderId;
+    String userStoriesFileId;
+    String notesFileId;
+
+    ProductBacklog productBacklog;
 
     public Project(String leaderEmail, String title) {
-        members = new HashMap<>();
+        members = new ArrayList<>();
         this.leaderEmail = leaderEmail;
         this.title = title;
         id =  String.valueOf(Math.abs(new Random().nextInt(9000)+1000));
-        invitationCode = "INV_"+id;
+        invitationCode = id;
+        productBacklog = new ProductBacklog(id,title);
 
 
     }
 
+    public Project(){
+
+    }
+
+
+
+    public ProductBacklog getProductBacklog(){
+        return productBacklog;
+    }
 
     public ArrayList<String> getMembers() {
-        return new ArrayList<String>(members.keySet());
+        return members;
     }
 
     public String getId() {
@@ -51,16 +67,30 @@ public class Project {
     }
 
     public void addMember(User u){
-        members.put(u.getEmail(),u.getGcmToken());
+
+        members.add(u.getEmail());
         System.out.println("added member to project "+ id);
 
-        sendTeamNotification(u.getName() + " has joined your project!");
+        if(!u.getEmail().equals(leaderEmail))
+             DriveService.insertPermission(  DriveService.getDriveService(u),projectFolderId,u.getEmail()); // share project folder with the new member
+
+
+      //  sendTeamNotification(u.getName() + " has joined your project!");
     }
 
     public void sendTeamNotification(String msg){
-        for(String s:members.keySet()){
-            GCMmessenger.sendSimpleNotification(msg,"New User joined!",members.get(s),true);
+        for(String s:members){
+            String token = DB.getInstance().getUser(s).getGcmToken();
+            GCMmessenger.sendSimpleNotification(msg,"New User joined!",token,true);
         }
+    }
+
+    public void setUserStoriesFileId(String userStoriesFileId) {
+        this.userStoriesFileId = userStoriesFileId;
+    }
+
+    public void setNotesFileId(String notesFileId) {
+        this.notesFileId = notesFileId;
     }
 
     public void setProjectFolderId(String projectFolderId) {

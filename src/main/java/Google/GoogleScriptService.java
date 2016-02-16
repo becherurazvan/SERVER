@@ -1,3 +1,5 @@
+package Google;
+
 import Google.GoogleSecret;
 import Google.TokenUtil;
 import com.google.api.client.auth.oauth2.Credential;
@@ -16,13 +18,12 @@ import com.google.api.client.http.HttpRequest;
 import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.Map;
+import java.util.*;
+
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.model.Channel;
 import com.google.api.services.script.model.*;
 import com.google.api.services.script.Script;
-
-import java.util.Arrays;
-import java.util.List;
 
 public class GoogleScriptService {
     /** Application name. */
@@ -80,7 +81,31 @@ public class GoogleScriptService {
     }
 
     public static void main(String[] args) throws Exception {
-        new GoogleSecret();
+        new GoogleSecret(false);
+
+        new DriveService();
+
+        Drive service =DriveService.getDriveService("ya29.iAKn-ukTG74iJATp6v4Xs7EAySkChep0PFYey1bM-e2KxtLjOxdJ2tkPRsW33HlNTuBu", "1/BCqOIuJc1F2OY1g_r9_CP01Zy-5x7s92fwfL-gWcV-lIgOrJDtdun6zK6XiATCKT");
+
+        Channel channel = new Channel();
+        channel.setId("behehehehehehe");
+        channel.setResourceId("17oGgnU3OaI0qUzWtJ1bxkON3PDPiXfmWh21F-BkVjYU");
+        channel.setType("web_hook");
+        channel.setAddress("https://enigmatic-falls-22379.herokuapp.com/callback");
+        channel.setToken("THis is a special token");
+        HashMap<String,String> params = new HashMap<>();
+        params.put("this is a param key","this is a param value");
+        channel.setParams(params);
+
+        try {
+            channel =service.changes().watch(channel).execute();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println(channel.getId());
+
+        /*
         String scriptId = "MmaKzw8TVLaFD69ImsbODnfsKBwR_Wyo5";
         String docId = "1dYr2QCP-ukuLwXTR3a1qbOBp1LEcaVzJY0R22c0Pga8";
         String value = "HEHEHEH";
@@ -110,6 +135,8 @@ public class GoogleScriptService {
         }catch (GoogleJsonResponseException e){
             e.printStackTrace();
         }
+
+        */
 
     }
 

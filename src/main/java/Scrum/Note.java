@@ -1,6 +1,5 @@
 package Scrum;
 
-import com.sun.istack.internal.NotNull;
 
 /*
 A note is an object with an ID and a string that holds notes about another object like a task or user stories.
@@ -11,15 +10,15 @@ instead of in-app
 public class Note {
     String id;
     String text;
-    String setBy; // id;
     String date;
 
-    public Note(@NotNull  String id, @NotNull String text, String setBy, String date) {
+    public Note(  String id, String text, String date) {
         this.id = id;
         this.text = text;
-        this.setBy = setBy;
         this.date = date;
     }
+
+    public Note(){}
 
     public String getId() {
         return id;
@@ -27,10 +26,6 @@ public class Note {
 
     public String getText() {
         return text;
-    }
-
-    public String getSetBy() {
-        return setBy;
     }
 
     public String getDate() {

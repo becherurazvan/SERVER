@@ -35,6 +35,7 @@ public class Sprint {
     public void addUserStory(UserStory story){
         userStories.add(story);
     }
+
     public void start(){
         started = true;
         dayOfSprint=1;

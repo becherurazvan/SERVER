@@ -1,5 +1,7 @@
 package Scrum;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 
 /*
@@ -10,7 +12,6 @@ to categories it if needed) and an order (in the list of tasks of a user story)
 public class Task {
     String id;
     String title;
-    String description;
     String userStoryId;
     int points;
     ArrayList<String> assignedTo;
@@ -21,17 +22,26 @@ public class Task {
     ArrayList<Note> notes;
 
 
-    public Task(String id, String title, String description, String userStoryId, int points) {
+    public Task(String id, String title, int points,String userStoryId) {
         this.id = id;
         this.title = title;
-        this.description = description;
         this.userStoryId = userStoryId;
         this.points = points;
         assignedTo=new ArrayList<>();
         notes = new ArrayList<>();
         status = Constants.STATUS_NEW;
+
+        System.out.println("New Task created id:" + id + " worth: "+points + "\n---->" +title);
     }
 
+    public Task(){
+
+    }
+
+    @JsonIgnore
+    public boolean isPartOfUserStory(){
+        return userStoryId!=null;
+    }
     public void assignTo(String userId){
         assignedTo.add(userId);
     }
@@ -47,9 +57,6 @@ public class Task {
         return done;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
 
     public void setUserStoryId(String userStoryId) {
         this.userStoryId = userStoryId;
@@ -83,10 +90,6 @@ public class Task {
         return title;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
     public String getUserStoryId() {
         return userStoryId;
     }
@@ -113,5 +116,12 @@ public class Task {
 
     public ArrayList<Note> getNotes() {
         return notes;
+    }
+
+    public void print(){
+        System.out.println("PRINTING TASK_____");
+        System.out.println("Id:" + id);
+        System.out.println("Points:" + points);
+        System.out.println("Content: " +title);
     }
 }

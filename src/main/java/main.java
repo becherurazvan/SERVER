@@ -16,21 +16,45 @@ import com.google.api.services.script.model.Operation;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
+import static spark.Spark.*;
 public class main {
 
     public static void main(String[] args) throws IOException {
 
+        boolean isHeroku=true;
+        int port = getHerokuAssignedPort();
+        if(port==4567)
+            isHeroku=false;
+        port(getHerokuAssignedPort());
 
-        new GoogleSecret();
+
+        new GoogleSecret(isHeroku);
         new UserManager();
          new ProjectManager();
         new GCMmessenger();
 
 
 
+        get("/google9da1222ff433ce18.html", (request, response) -> {
+            return "google-site-verification: google9da1222ff433ce18.html";
+        });
+
+        get("/updated_document", (request, response) -> {
+            System.out.println("Document updated " + request.queryMap().value("file_id"));
+            return "Succesfully published";
+        });
 
 
+
+    }
+
+
+    static int getHerokuAssignedPort() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        if (processBuilder.environment().get("PORT") != null) {
+            return Integer.parseInt(processBuilder.environment().get("PORT"));
+        }
+        return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
     }
 
     public static Drive getDriveService(String accessToken, String refreshToken) {

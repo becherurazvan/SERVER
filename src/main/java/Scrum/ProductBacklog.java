@@ -1,5 +1,7 @@
 package Scrum;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.util.ArrayList;
 
 /*
@@ -11,13 +13,55 @@ public class ProductBacklog {
     Sprint currentSprint;
     int achievedPoints;
 
-    public ProductBacklog() {
+    ArrayList<UserStory> userStories;
+
+    int latestSprintNumber;
+
+    String projectId,projectTitle;
+
+    public ProductBacklog(String projectId,String projectTitle) {
+        latestSprintNumber=0;
+        userStories = new ArrayList<>();
+        this.projectId = projectId;
+        this.projectTitle = projectTitle;
+        sprints = new ArrayList<>();
+        System.out.println("Succesfully created product backlog for project " + projectTitle);
+    }
+
+
+    public ProductBacklog(){
+
     }
 
     public Sprint getCurrentSprint() {
         return currentSprint;
     }
 
+    public void addUserStory(UserStory story){
+        userStories.add(story);
+    }
+
+    public void addUserStories(ArrayList<UserStory> stories){
+        for(UserStory story:stories)
+            userStories.add(story);
+    }
+
+    public UserStory createUserStory(String id,String description){
+        UserStory s = new UserStory(id,description);
+        userStories.add(s);
+        return s;
+    }
+    public void addSprint(Sprint s){
+        sprints.add(s);
+    }
+
+    public Sprint createSprint(int sprintNumber,String startDate,String endDate){
+        Sprint s = new Sprint(sprintNumber,startDate,endDate);
+        sprints.add(s);
+        return s;
+    }
+
+    @JsonIgnore
     public int getTotalPoints() {
         int points = 0;
         for(Sprint s:sprints){
@@ -40,5 +84,9 @@ public class ProductBacklog {
             if(s.getNumber()==currentSprintNr+1)
                 currentSprint = s;
         }
+    }
+
+    public ArrayList<UserStory> getUserStories() {
+        return userStories;
     }
 }

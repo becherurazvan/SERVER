@@ -33,6 +33,12 @@ public class User {
         return true;
     }
 
+    public boolean setTokens(String accessToken,String refreshToken){
+
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
+        return true;
+    }
 
     public boolean isPartOfProject(){
         return currentProject!=null;
