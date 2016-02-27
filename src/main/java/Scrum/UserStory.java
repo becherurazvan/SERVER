@@ -8,6 +8,8 @@ A user story is part of a sprint or unassigned, it has a order in the sprint bac
  */
 
 import Entities.User;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import java.util.ArrayList;
 
@@ -24,21 +26,19 @@ public class UserStory { // all or some, must at some point have some kind of ac
     int achievedStoryPoints;
     int boardOrder;
 
-    String fileId;
-    String bookmarkId;
+    int lastTaskId =0;
 
 
-    public UserStory(String id,String description) {
+
+    public UserStory(String description) {
         notes=new ArrayList<>();
         tasks = new ArrayList<>();
         assignedTo = new ArrayList<>();
-        this.id = id;
+
         status = Constants.STATUS_NEW;
         refreshStoryPoints();
         refreshAssignedTo();
         this.description = description;
-
-        System.out.println("\n      New user story created id:" + id + "\n" +description);
     }
     public UserStory(){
 
@@ -46,12 +46,16 @@ public class UserStory { // all or some, must at some point have some kind of ac
 
 
 
-    public void addTask(Task task){
+    public Task addTask(Task task){
+        task.setId(generateTaskId());
         tasks.add(task);
+        return task;
     }
     public void addNote(Note note){
         notes.add(note);
     }
+
+    @JsonIgnore
     public void refreshStoryPoints(){
         storyPoints =0;
         for(Task t:tasks){
@@ -59,6 +63,17 @@ public class UserStory { // all or some, must at some point have some kind of ac
         }
     }
 
+
+    @JsonIgnore
+    public boolean isActive(){
+        return id!=null;
+    }
+
+    public void setId(String id){
+        this.id = id;
+    }
+
+    @JsonIgnore
     public int getAchievedStoryPoints(){
         int p=0;
         for(Task t:tasks){
@@ -69,6 +84,7 @@ public class UserStory { // all or some, must at some point have some kind of ac
         return p;
     }
 
+    @JsonIgnore
     public void refreshAssignedTo(){
         assignedTo=new ArrayList<>();
         for(Task t:tasks){
@@ -80,8 +96,11 @@ public class UserStory { // all or some, must at some point have some kind of ac
     }
 
     public void addTasks(ArrayList<Task> tasks){
-        for(Task t:tasks)
+        for(Task t:tasks) {
+            t.setId("T_"+lastTaskId);
+            lastTaskId++;
             this.tasks.add(t);
+        }
 
         refreshStoryPoints();
     }
@@ -142,5 +161,11 @@ public class UserStory { // all or some, must at some point have some kind of ac
 
     public int getBoardOrder() {
         return boardOrder;
+    }
+
+
+    public String generateTaskId(){
+        lastTaskId++;
+        return id + "-T_"+lastTaskId;
     }
 }

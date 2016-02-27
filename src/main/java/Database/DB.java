@@ -71,17 +71,16 @@ public class DB {
     }
 
 
-    public void setNotesFileId(String projectId,String id){
-        projects.get(projectId).setNotesFileId(id);
-    }
-
 
     public Project getProject(String id){
+
         return projects.get(id);
     }
 
     public Response joinProject(String email, String invitationCode){
         User u = registeredUsers.get(email);
+
+
 
         if(!projects.containsKey(invitationCode)){
             return new Response(false,"Invitation code invalid");
@@ -89,9 +88,24 @@ public class DB {
             Project project = projects.get(invitationCode);
             project.addMember(getUser(email));
             u.joinProject(project.getId());
+
+
             return new Response(true,"Succesfully joined project with id : " +project.getId());
         }
     }
+
+
+    public Project getProjectThatHasFileWithId(String id){
+        Project pr = null;
+        for(String s:projects.keySet()){
+            Project p = projects.get(s);
+            if(p.getUserStoriesFileId().equals(id)){
+                pr = p;
+            }
+        }
+        return pr;
+    }
+
 
 
 

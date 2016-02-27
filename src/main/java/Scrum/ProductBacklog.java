@@ -8,19 +8,20 @@ import java.util.ArrayList;
 The product backlog contains the overall progress (over sprints), a list of all user stories and their allocation
 and a list of sprints and which one is the current sprint.
 */
-public class ProductBacklog {
+public class ProductBacklog implements DateManager.DayChangeListener {
     ArrayList<Sprint> sprints;
     Sprint currentSprint;
     int achievedPoints;
 
-    ArrayList<UserStory> userStories;
 
-    int latestSprintNumber;
+    ArrayList<UserStory> userStories;
+    int latestUserStoryId =1;
+
+    int latestSprintNumber=0;
 
     String projectId,projectTitle;
 
     public ProductBacklog(String projectId,String projectTitle) {
-        latestSprintNumber=0;
         userStories = new ArrayList<>();
         this.projectId = projectId;
         this.projectTitle = projectTitle;
@@ -42,12 +43,18 @@ public class ProductBacklog {
     }
 
     public void addUserStories(ArrayList<UserStory> stories){
-        for(UserStory story:stories)
-            userStories.add(story);
+
+        for(UserStory story:stories){
+            story.setId(getUserStoryIdFromPool());
+            addUserStory(story);
+        }
     }
 
-    public UserStory createUserStory(String id,String description){
-        UserStory s = new UserStory(id,description);
+
+    public UserStory createUserStory(String description){
+
+        UserStory s = new UserStory(description);
+        s.setId(getUserStoryIdFromPool());
         userStories.add(s);
         return s;
     }
@@ -55,8 +62,8 @@ public class ProductBacklog {
         sprints.add(s);
     }
 
-    public Sprint createSprint(int sprintNumber,String startDate,String endDate){
-        Sprint s = new Sprint(sprintNumber,startDate,endDate);
+    public Sprint createSprint(String startDate,String endDate){
+        Sprint s = new Sprint(getSprintNumberFromPool(),startDate,endDate);
         sprints.add(s);
         return s;
     }
@@ -88,5 +95,55 @@ public class ProductBacklog {
 
     public ArrayList<UserStory> getUserStories() {
         return userStories;
+    }
+
+    public void printStories(){
+        for(UserStory story:userStories){
+            System.out.println(story.getId() +"\n" +story.getDescription());
+        }
+    }
+    private String getUserStoryIdFromPool(){
+        String id ="US_"+latestUserStoryId;
+        latestUserStoryId++;
+        return id;
+    }
+
+
+    public Task addTask(Task t){
+        Task task=null;
+        for(UserStory story:userStories){
+            if(story.getId().equals(t.getUserStoryId())){
+                task = story.addTask(t);
+            }
+        }
+        return task;
+    }
+
+    public UserStory updateUserStory(UserStory story){
+        UserStory s = null;
+        for(UserStory userStory:userStories){
+            if(userStory.getId().equals(story.getId())){
+                userStory.setDescription(story.getDescription());
+                s = userStory;
+            }
+        }
+        if(s==null){
+            System.out.println("No such user story exists");
+        }
+        return s;
+    }
+
+    public ArrayList<Sprint> getSprints() {
+        return sprints;
+    }
+
+    private int getSprintNumberFromPool(){
+        latestSprintNumber++;
+        return latestSprintNumber;
+    }
+
+    @Override
+    public void onDateChanged(int day, int month, int year) {
+
     }
 }

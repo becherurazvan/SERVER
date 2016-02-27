@@ -1,5 +1,7 @@
 package Scrum;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,6 +34,9 @@ public class Sprint {
         progressPerDay = new HashMap<>();
     }
 
+    public Sprint() {
+    }
+
     public void addUserStory(UserStory story){
         userStories.add(story);
     }
@@ -45,6 +50,7 @@ public class Sprint {
         dayOfSprint++;
     }
 
+    @JsonIgnore
     public int getCurrentPoints(){
         int p=0;
         for(UserStory userStory:userStories){
@@ -57,6 +63,7 @@ public class Sprint {
         return number;
     }
 
+    @JsonIgnore
     public int getAchievedPoints(){
         int p=0;
         for(UserStory s:userStories){

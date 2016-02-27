@@ -2,6 +2,7 @@ package Entities;
 
 
 import Database.DB;
+import GCM.GCMmessenger;
 import Google.TokenUtil;
 import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 
@@ -84,6 +85,10 @@ public class User {
 
     public String getGcmToken() {
         return gcmToken;
+    }
+
+    public void sendNotification(String msg,String title,boolean banner){
+        GCMmessenger.sendSimpleNotification(msg,title,gcmToken,banner);
     }
 
     public void setGcmToken(String gcmToken) {

@@ -74,7 +74,7 @@ public class DriveService {
         try {
             return service.permissions().insert(fileId, newPermission).execute();
         } catch (IOException e) {
-            System.out.println("An error occurred: " + e);
+            e.printStackTrace();
         }
         return null;
     }

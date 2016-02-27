@@ -5,5 +5,10 @@ package Requests;
  */
 public class GetProjectRequest extends Request {
 
+    public GetProjectRequest(String tokenId) {
+        super(tokenId);
+    }
 
+    public GetProjectRequest() {
+    }
 }

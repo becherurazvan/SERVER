@@ -19,9 +19,13 @@ public class GoogleSecret {
     static GoogleClientSecrets clientSecrets;
 
     public GoogleSecret(boolean isHeroku){
+
+
+
+
         String secretFilePath;
         if(isHeroku)
-            secretFilePath= new java.io.File("").getAbsolutePath()+"/client_secret_script.json"; // remember to change back to without "script";
+            secretFilePath= new java.io.File("").getAbsolutePath()+"/target/classes/client_secret_script.json"; // remember to change back to without "script";
         else
             secretFilePath= new java.io.File("").getAbsolutePath()+"/src/main/java/client_secret_script.json"; // remember to change back to without "script";
 

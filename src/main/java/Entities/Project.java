@@ -6,6 +6,7 @@ import Google.DriveService;
 import Scrum.ProductBacklog;
 import com.google.api.services.drive.Drive;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -17,32 +18,27 @@ public class Project {
     String title;
     String leaderEmail;
     String invitationCode;
-
-
     String projectFolderId;
     String userStoriesFileId;
-    String notesFileId;
-
     ProductBacklog productBacklog;
 
     public Project(String leaderEmail, String title) {
         members = new ArrayList<>();
         this.leaderEmail = leaderEmail;
         this.title = title;
-        id =  String.valueOf(Math.abs(new Random().nextInt(9000)+1000));
+        id = String.valueOf(Math.abs(new Random().nextInt(9000) + 1000));
         invitationCode = id;
-        productBacklog = new ProductBacklog(id,title);
+        productBacklog = new ProductBacklog(id, title);
 
+        //for test only
+    }
+
+    public Project() {
 
     }
 
-    public Project(){
 
-    }
-
-
-
-    public ProductBacklog getProductBacklog(){
+    public ProductBacklog getProductBacklog() {
         return productBacklog;
     }
 
@@ -66,34 +62,62 @@ public class Project {
         return invitationCode;
     }
 
-    public void addMember(User u){
+    public void addMember(User u) {
 
         members.add(u.getEmail());
-        System.out.println("added member to project "+ id);
+        System.out.println("added member to project " + id);
 
-        if(!u.getEmail().equals(leaderEmail))
-             DriveService.insertPermission(  DriveService.getDriveService(u),projectFolderId,u.getEmail()); // share project folder with the new member
+        /////////////////////////////////////////////////
+        // to-do remove comments
+        //////////////////////////
+        if (!u.getEmail().equals(leaderEmail))
+            DriveService.insertPermission(DriveService.getDriveService(DB.getInstance().getUser(leaderEmail)), projectFolderId, u.getEmail()); // share project folder with the new member
 
 
-      //  sendTeamNotification(u.getName() + " has joined your project!");
+        sendTeamNotification(u.getName() + " has joined your project!", "New user has joined the project!");
     }
 
-    public void sendTeamNotification(String msg){
-        for(String s:members){
+    public void sendTeamNotification(String msg, String title) {
+        for (String s : members) {
             String token = DB.getInstance().getUser(s).getGcmToken();
-            GCMmessenger.sendSimpleNotification(msg,"New User joined!",token,true);
+            GCMmessenger.sendSimpleNotification(msg, title, token, true);
         }
     }
+
+
+    public void notifyTeamOfBacklogUpdate() {
+        for (String s : members) {
+            String token = DB.getInstance().getUser(s).getGcmToken();
+            GCMmessenger.sendBacklogUpdateRequest(token);
+        }
+    }
+
+    public void notifyTeamOfBacklogUpdate(User except) {
+        for (String s : members) {
+            if (!s.equals(except.getEmail())) {
+                String token = DB.getInstance().getUser(s).getGcmToken();
+                GCMmessenger.sendBacklogUpdateRequest(token);
+            }
+        }
+    }
+
 
     public void setUserStoriesFileId(String userStoriesFileId) {
         this.userStoriesFileId = userStoriesFileId;
     }
 
-    public void setNotesFileId(String notesFileId) {
-        this.notesFileId = notesFileId;
-    }
 
     public void setProjectFolderId(String projectFolderId) {
         this.projectFolderId = projectFolderId;
     }
+
+    public String getProjectFolderId() {
+        return projectFolderId;
+    }
+
+    public String getUserStoriesFileId() {
+        return userStoriesFileId;
+    }
+
+
 }
