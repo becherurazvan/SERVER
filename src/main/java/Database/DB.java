@@ -21,6 +21,7 @@ public class DB {
 
     private HashMap<String, User> registeredUsers = new HashMap<>();
     private HashMap<String, Project> projects = new HashMap<>();
+    private HashMap<String,Feed> feeds = new HashMap<>(); // project id +  the list of actions
 
     private static DB instance = null;
     protected DB() {}
@@ -43,21 +44,15 @@ public class DB {
     public boolean userExists(String email){
         return registeredUsers.containsKey(email);
     }
-    public void setUserTokens(){
-
-    }
-    public void userJoinedProject(String email, String projectId){
-
-    }
-
 
     //////////////////////////////////////////////////////////// PROJECTS
 
     public Project createProject(String ownerEmail, String projectName){
         Project p = new Project(ownerEmail,projectName);
         projects.put(p.getId(),p);
+        feeds.put(p.getId(),new Feed());
         registeredUsers.get(ownerEmail).joinProject(p.getId());
-        p.addMember(getUser(ownerEmail));
+        p.addMember(getUser(ownerEmail),false);
         System.out.println("Succefully created project : " + projectName);
         return p;
     }
@@ -86,7 +81,7 @@ public class DB {
             return new Response(false,"Invitation code invalid");
         }else{
             Project project = projects.get(invitationCode);
-            project.addMember(getUser(email));
+            project.addMember(getUser(email),false);
             u.joinProject(project.getId());
 
 
@@ -105,6 +100,22 @@ public class DB {
         }
         return pr;
     }
+
+    public void notifyNewDay(){
+        for(Project p:projects.values()){
+            p.notifyTeamOfBacklogUpdate();
+        }
+    }
+
+    public void registerAction(String projectId, Action a) {
+        feeds.get(projectId).registerAction(a);
+    }
+
+    public Feed getFeed(String projectId){
+        return feeds.get(projectId);
+    }
+
+
 
 
 

@@ -1,18 +1,11 @@
-package ScrumTests;
-
 import Database.DB;
 import Database.Entry;
 import Entities.Project;
 import Entities.User;
 import Scrum.*;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Random;
 
 /**
@@ -20,13 +13,13 @@ import java.util.Random;
  */
 public class PointsTest {
 
-    public static String pointTest(){
+    public static String pointTest(String leader){
         DB db = DB.getInstance();
         new DateManager();
 
-        User u = new User("colinearproductions@gmail.com", "USer 1", "URL", "UID");
-        User u2 = new User("Email 2", "USer 2", "URL", "UID");
-        User u3 = new User("Email 3", "USer 3", "URL", "UID");
+        User u = new User(leader, "Desene Dublate", "URL", "UID");
+        User u2 = new User("colinearproductions@gmail.com", "USer 2", "URL", "UID");
+        User u3 = new User("sbarcea.andrei94@gmail.com", "Andrei Sbarcea 3", "URL", "UID");
 
         db.registerUser(u);
         db.registerUser(u2);
@@ -46,7 +39,7 @@ public class PointsTest {
         u3.joinProject(p.getId());
 
         ProductBacklog backlog = p.getProductBacklog();
-        String[] sprintDates = {"13 March 2016", "8 April 2016", "8 May 2016", "8 June 2016", "9 July 2016"};
+        String[] sprintDates = {"14 March 2016", "8 April 2016", "8 May 2016", "8 June 2016", "9 July 2016"};
 
         for (int i = 0; i < sprintDates.length - 1; i++) {
             backlog.createSprint(sprintDates[i], sprintDates[i + 1]);
@@ -62,7 +55,7 @@ public class PointsTest {
             }
         }
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 90; i++) {
             solveRandomTask(backlog, users);
             DateManager.getInstance().incrementDay();
 
@@ -73,36 +66,30 @@ public class PointsTest {
 
         System.out.println("Project burndown chart");
 
-        System.out.format("%5s %25s %25s %25s %25s %25s %25s \n","Day #", "Sprint #","Sprint Day #","Total Achieved points","Total points","Sprint AchievedPoints", "Sprint Total Points");
+        System.out.format("%5s %25s %25s %25s %25s %25s %25s %25s \n","Day #",
+                "Sprint #","Sprint Day #","Total Achieved points","Total points","Sprint AchievedPoints",
+                "Sprint Total Points", "Date");
         for(Entry e:p.getRecord().getBurndownChart()){
-            System.out.format("%5s %25s %25s %25s %25s %25s %25s \n",
-                    e.getProjectDayNumber(),e.getSprintNumber(),e.getSprintDayNumber(),e.getTotalAchievedPoints(),e.getTotalPoints(),e.getTotalAchievedSprintPoints(),e.getTotalSprintPoints());
+            System.out.format("%5s %25s %25s %25s %25s %25s %25s %25s \n",
+                    e.getProjectDayNumber(),e.getSprintNumber(),e.getSprintDayNumber(),
+                    e.getTotalAchievedPoints(),e.getTotalPoints(),e.getTotalAchievedSprintPoints(),
+                    e.getTotalSprintPoints(),e.getDate().get(Calendar.DAY_OF_YEAR));
         }
 
         System.out.println("Project id " + p.getId());
 
-
-        System.out.println("PROJECT DURATION : " + p.calculateDaysInProject());
-
-        for(Sprint s:p.getProductBacklog().getSprints()){
-            System.out.println(s.getDayDuration());
-        }
         return p.getId();
 
 
     }
 
-    public static void main(String[] args){
-        pointTest();
-    }
-
 
     public static UserStory generateUS(ProductBacklog productBacklog) {
         Random rnd = new Random();
-        UserStory userStory = productBacklog.createUserStory("US Description " + rnd.nextInt(1000));
+        UserStory userStory = productBacklog.createUserStory("As a user \nI want to be able to read my emails\nSo that I can reply" + rnd.nextInt(1000));
         int tasks = rnd.nextInt(5) + 1;
         for (int i = 0; i < tasks; i++) {
-            Task t = new Task("Task title " + userStory.getId(), rnd.nextInt(5) + 1, userStory.getId());
+            Task t = new Task("This task has the id  " + userStory.getId() + " and it serves as a placeholder for the task descripiton", rnd.nextInt(5) + 1, userStory.getId());
             userStory.addTask(t);
         }
         return userStory;

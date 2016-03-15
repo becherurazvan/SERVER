@@ -4,7 +4,10 @@ import GCM.GCMmessenger;
 import Google.DriveService;
 import Google.GoogleSecret;
 import Scrum.DateManager;
+import Scrum.FeedManager;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.services.script.Script;
+import com.google.gdata.data.geo.Point;
 
 
 import java.io.IOException;
@@ -28,9 +31,12 @@ public class main {
         new ProjectManager();
         new GCMmessenger();
         new ScrumManager();
+        new FeedManager();
 
 
-        System.out.println(main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
+       //PointsTest.pointTest("collinearproductions@gmail.com");
+
+      //  System.out.println(main.class.getProtectionDomain().getCodeSource().getLocation().getPath());
 
 
         get("/google9da1222ff433ce18.html", (request, response) -> {
@@ -60,8 +66,20 @@ public class main {
 
         get("/incremenet_day",(request, response) -> {
             DateManager.getInstance().incrementDay();
+            DB.getInstance().notifyNewDay();
             return DateManager.getInstance().getDate();
         });
+
+
+        get("/report",((request, response) -> {
+            String projectId = request.queryMap().value("project_id");
+            ObjectMapper mapper = new ObjectMapper();
+            if(DB.getInstance().getProject(projectId)!=null){
+                return mapper.writeValueAsString(DB.getInstance().getProject(projectId).getRecord());
+            }else{
+                return "No such project exists";
+            }
+        }));
 
 
     }

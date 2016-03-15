@@ -40,6 +40,8 @@ public class UserManager {
                 String email = payload.getEmail();
                 String name = (String) payload.get("name");
                 String pictureUrl = (String) payload.get("picture");
+
+                System.out.println(payload.get("picture"));
                 System.out.println("Email: " + email + " name :  + " + name  +  " is trying to join");
 
                 //returning user

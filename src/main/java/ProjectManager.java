@@ -2,6 +2,7 @@
  * Created by rbech on 1/26/2016.
  */
 
+import Database.Action;
 import Database.DB;
 import Entities.Project;
 import Entities.User;
@@ -49,6 +50,9 @@ public class ProjectManager {
             // we will have to notify the user at some point that the project is ready for him, will take advantage of GCM
             // to do this
 
+            Action a = new Action(u.getEmail(),u.getName()," has created project "+projectName);
+            db.registerAction(p.getId(),a);
+
             return mapper.writeValueAsString(new CreateProjectResponse(p));
         });
 
@@ -59,6 +63,15 @@ public class ProjectManager {
             GoogleIdToken idToken = GoogleIdToken.parse(JacksonFactory.getDefaultInstance(),joinRequest.getTokenId());
             String email = idToken.getPayload().getEmail();
             System.out.println("User : " + email +  " with invitation code : " + joinRequest.getInvitationCode());
+
+
+            Response r = db.joinProject(email,joinRequest.getInvitationCode());
+
+            if(r.isSuccesful()){
+                Action a = new Action(idToken.getPayload().getEmail(),idToken.getPayload().getEmail()," has joined the project!");
+                db.registerAction(db.getProject(joinRequest.getInvitationCode()).getId(),a);
+
+            }
 
             return mapper.writeValueAsString(db.joinProject(email,joinRequest.getInvitationCode()));
         });

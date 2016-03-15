@@ -50,6 +50,19 @@ public class GCMmessenger {
         }
     }
 
+    public static void sendFeedUpdateRequest(String receiver){
+        Message message = new Message.Builder()
+                .addData("message","FEED_ITEM_AVAILABLE")
+                .build();
+        try {
+            Result result = sender.send(message, receiver, 1);
+            System.out.println("Result:" + result.getErrorCodeName());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     public static void sendMessage(Message msg, String receiver) {
         try {
